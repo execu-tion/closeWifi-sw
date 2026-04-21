@@ -1,0 +1,1410 @@
+diff --git a/arch/arm/dts/zynq-zc702.dts b/arch/arm/dts/zynq-zc702.dts
+index 5026515e0ae..394bbcfa26b 100644
+--- a/arch/arm/dts/zynq-zc702.dts
++++ b/arch/arm/dts/zynq-zc702.dts
+@@ -1,459 +1,970 @@
+-// SPDX-License-Identifier: GPL-2.0+
+-/*
+- *  Copyright (C) 2011 - 2015 Xilinx
+- *  Copyright (C) 2012 National Instruments Corp.
+- */
+-/dts-v1/;
+-#include "zynq-7000.dtsi"
+-#include <dt-bindings/gpio/gpio.h>
++# 0 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts"
++# 0 "<built-in>"
++# 0 "<command-line>"
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts"
++
++
++
+ 
++
++
++
++/dts-v1/;
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/zynq-7000.dtsi" 1
++# 15 "/mnt/e/document/SCFDE/closewifi/dts/build/zynq-7000.dtsi"
+ / {
+-	model = "Xilinx ZC702 board";
+-	compatible = "xlnx,zynq-zc702", "xlnx,zynq-7000";
+-
+-	aliases {
+-		ethernet0 = &gem0;
+-		i2c0 = &i2c0;
+-		serial0 = &uart1;
+-		spi0 = &qspi;
+-		mmc0 = &sdhci0;
+-		usb0 = &usb0;
+-		nvmem0 = &eeprom;
+-		rtc0 = &rtc;
+-	};
+-
+-	memory@0 {
+-		device_type = "memory";
+-		reg = <0x0 0x40000000>;
+-	};
+-
+-	chosen {
+-		bootargs = "";
+-		stdout-path = "serial0:115200n8";
+-	};
+-
+-	gpio-keys {
+-		compatible = "gpio-keys";
+-		autorepeat;
+-		switch-14 {
+-			label = "sw14";
+-			gpios = <&gpio0 12 0>;
+-			linux,code = <108>; /* down */
+-			wakeup-source;
+-			autorepeat;
+-		};
+-		switch-13 {
+-			label = "sw13";
+-			gpios = <&gpio0 14 0>;
+-			linux,code = <103>; /* up */
+-			wakeup-source;
+-			autorepeat;
+-		};
+-	};
+-
+-	leds {
+-		compatible = "gpio-leds";
+-
+-		led-ds23 {
+-			label = "ds23";
+-			gpios = <&gpio0 10 0>;
+-			linux,default-trigger = "heartbeat";
+-		};
+-	};
+-
+-	usb_phy0: phy0@e0002000 {
+-		compatible = "ulpi-phy";
+-		#phy-cells = <0>;
+-		reg = <0xe0002000 0x1000>;
+-		view-port = <0x0170>;
+-		drv-vbus;
+-	};
++ #address-cells = <1>;
++ #size-cells = <1>;
++ compatible = "xlnx,zynq-7000";
++
++ cpus {
++  #address-cells = <1>;
++  #size-cells = <0>;
++
++  cpu0: cpu@0 {
++   compatible = "arm,cortex-a9";
++   device_type = "cpu";
++   reg = <0>;
++   clocks = <&clkc 3>;
++   clock-latency = <1000>;
++   cpu0-supply = <&regulator_vccpint>;
++   operating-points = <
++800000 10000000
++
++    666667 1000000
++    333334 1000000
++   >;
++  };
++
++  cpu1: cpu@1 {
++   compatible = "arm,cortex-a9";
++   device_type = "cpu";
++   reg = <1>;
++   clocks = <&clkc 3>;
++  };
++ };
++
++ fpga_full: fpga-full {
++  compatible = "fpga-region";
++  fpga-mgr = <&devcfg>;
++  #address-cells = <1>;
++  #size-cells = <1>;
++  ranges;
++ };
++
++ pmu@f8891000 {
++  compatible = "arm,cortex-a9-pmu";
++  interrupts = <0 5 4>, <0 6 4>;
++  interrupt-parent = <&intc>;
++  reg = < 0xf8891000 0x1000 0xf8893000 0x1000 >;
++ };
++
++ regulator_vccpint: fixedregulator {
++  compatible = "regulator-fixed";
++  regulator-name = "VCCPINT";
++  regulator-min-microvolt = <1000000>;
++  regulator-max-microvolt = <1000000>;
++  regulator-boot-on;
++  regulator-always-on;
++ };
++
++ replicator {
++  compatible = "arm,coresight-static-replicator";
++  clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++  clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++
++  out-ports {
++   #address-cells = <1>;
++   #size-cells = <0>;
++
++
++   port@0 {
++    reg = <0>;
++    replicator_out_port0: endpoint {
++     remote-endpoint = <&tpiu_in_port>;
++    };
++   };
++   port@1 {
++    reg = <1>;
++    replicator_out_port1: endpoint {
++     remote-endpoint = <&etb_in_port>;
++    };
++   };
++  };
++  in-ports {
++
++   port {
++    replicator_in_port0: endpoint {
++     remote-endpoint = <&funnel_out_port>;
++    };
++   };
++  };
++ };
++
++ amba: axi {
++  u-boot,dm-pre-reloc;
++  compatible = "simple-bus";
++  #address-cells = <1>;
++  #size-cells = <1>;
++  interrupt-parent = <&intc>;
++  ranges;
++
++  adc: adc@f8007100 {
++   compatible = "xlnx,zynq-xadc-1.00.a";
++   reg = <0xf8007100 0x20>;
++   interrupts = <0 7 4>;
++   interrupt-parent = <&intc>;
++   clocks = <&clkc 12>;
++  };
++
++  can0: can@e0008000 {
++   compatible = "xlnx,zynq-can-1.0";
++   status = "disabled";
++   clocks = <&clkc 19>, <&clkc 36>;
++   clock-names = "can_clk", "pclk";
++   reg = <0xe0008000 0x1000>;
++   interrupts = <0 28 4>;
++   interrupt-parent = <&intc>;
++   tx-fifo-depth = <0x40>;
++   rx-fifo-depth = <0x40>;
++  };
++
++  can1: can@e0009000 {
++   compatible = "xlnx,zynq-can-1.0";
++   status = "disabled";
++   clocks = <&clkc 20>, <&clkc 37>;
++   clock-names = "can_clk", "pclk";
++   reg = <0xe0009000 0x1000>;
++   interrupts = <0 51 4>;
++   interrupt-parent = <&intc>;
++   tx-fifo-depth = <0x40>;
++   rx-fifo-depth = <0x40>;
++  };
++
++  gpio0: gpio@e000a000 {
++   compatible = "xlnx,zynq-gpio-1.0";
++   #gpio-cells = <2>;
++   clocks = <&clkc 42>;
++   gpio-controller;
++   interrupt-controller;
++   #interrupt-cells = <2>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 20 4>;
++   reg = <0xe000a000 0x1000>;
++  };
++
++  i2c0: i2c@e0004000 {
++   compatible = "cdns,i2c-r1p10";
++   status = "disabled";
++   clocks = <&clkc 38>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 25 4>;
++   reg = <0xe0004000 0x1000>;
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  i2c1: i2c@e0005000 {
++   compatible = "cdns,i2c-r1p10";
++   status = "disabled";
++   clocks = <&clkc 39>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 48 4>;
++   reg = <0xe0005000 0x1000>;
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  intc: interrupt-controller@f8f01000 {
++   compatible = "arm,cortex-a9-gic";
++   #interrupt-cells = <3>;
++   interrupt-controller;
++   reg = <0xF8F01000 0x1000>,
++         <0xF8F00100 0x100>;
++  };
++
++  L2: cache-controller@f8f02000 {
++   compatible = "arm,pl310-cache";
++   reg = <0xF8F02000 0x1000>;
++   interrupts = <0 2 4>;
++   arm,data-latency = <3 2 2>;
++   arm,tag-latency = <2 2 2>;
++   cache-unified;
++   cache-level = <2>;
++  };
++
++  mc: memory-controller@f8006000 {
++   compatible = "xlnx,zynq-ddrc-a05";
++   reg = <0xf8006000 0x1000>;
++  };
++
++  ocmc: ocmc@f800c000 {
++   compatible = "xlnx,zynq-ocmc-1.0";
++   interrupt-parent = <&intc>;
++   interrupts = <0 3 4>;
++   reg = <0xf800c000 0x1000>;
++  };
++
++  uart0: serial@e0000000 {
++   compatible = "xlnx,xuartps", "cdns,uart-r1p8";
++   status = "disabled";
++   clocks = <&clkc 23>, <&clkc 40>;
++   clock-names = "uart_clk", "pclk";
++   reg = <0xE0000000 0x1000>;
++   interrupts = <0 27 4>;
++  };
++
++  uart1: serial@e0001000 {
++   compatible = "xlnx,xuartps", "cdns,uart-r1p8";
++   status = "disabled";
++   clocks = <&clkc 24>, <&clkc 41>;
++   clock-names = "uart_clk", "pclk";
++   reg = <0xE0001000 0x1000>;
++   interrupts = <0 50 4>;
++  };
++
++  spi0: spi@e0006000 {
++   compatible = "xlnx,zynq-spi-r1p6";
++   reg = <0xe0006000 0x1000>;
++   status = "disabled";
++   interrupt-parent = <&intc>;
++   interrupts = <0 26 4>;
++   clocks = <&clkc 25>, <&clkc 34>;
++   clock-names = "ref_clk", "pclk";
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  spi1: spi@e0007000 {
++   compatible = "xlnx,zynq-spi-r1p6";
++   reg = <0xe0007000 0x1000>;
++   status = "disabled";
++   interrupt-parent = <&intc>;
++   interrupts = <0 49 4>;
++   clocks = <&clkc 26>, <&clkc 35>;
++   clock-names = "ref_clk", "pclk";
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  qspi: spi@e000d000 {
++   clock-names = "ref_clk", "pclk";
++   clocks = <&clkc 10>, <&clkc 43>;
++   compatible = "xlnx,zynq-qspi-1.0";
++   status = "disabled";
++   interrupt-parent = <&intc>;
++   interrupts = <0 19 4>;
++   reg = <0xe000d000 0x1000>;
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  smcc: memory-controller@e000e000 {
++   #address-cells = <1>;
++   #size-cells = <1>;
++   status = "disabled";
++   clock-names = "memclk", "apb_pclk";
++   clocks = <&clkc 11>, <&clkc 44>;
++   compatible = "arm,pl353-smc-r2p1", "arm,primecell";
++   interrupt-parent = <&intc>;
++   interrupts = <0 18 4>;
++   ranges ;
++   reg = <0xe000e000 0x1000>;
++   nand0: flash@e1000000 {
++    status = "disabled";
++    compatible = "arm,pl353-nand-r2p1";
++    reg = <0xe1000000 0x1000000>;
++    #address-cells = <0x1>;
++    #size-cells = <0x1>;
++   };
++   nor0: flash@e2000000 {
++    status = "disabled";
++    compatible = "cfi-flash";
++    reg = <0xe2000000 0x2000000>;
++    #address-cells = <1>;
++    #size-cells = <1>;
++   };
++  };
++
++  gem0: ethernet@e000b000 {
++   compatible = "cdns,zynq-gem", "cdns,gem";
++   reg = <0xe000b000 0x1000>;
++   status = "disabled";
++   interrupts = <0 22 4>;
++   clocks = <&clkc 30>, <&clkc 30>, <&clkc 13>;
++   clock-names = "pclk", "hclk", "tx_clk";
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  gem1: ethernet@e000c000 {
++   compatible = "cdns,zynq-gem", "cdns,gem";
++   reg = <0xe000c000 0x1000>;
++   status = "disabled";
++   interrupts = <0 45 4>;
++   clocks = <&clkc 31>, <&clkc 31>, <&clkc 14>;
++   clock-names = "pclk", "hclk", "tx_clk";
++   #address-cells = <1>;
++   #size-cells = <0>;
++  };
++
++  sdhci0: mmc@e0100000 {
++   compatible = "arasan,sdhci-8.9a";
++   status = "disabled";
++   clock-names = "clk_xin", "clk_ahb";
++   clocks = <&clkc 21>, <&clkc 32>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 24 4>;
++   reg = <0xe0100000 0x1000>;
++  };
++
++  sdhci1: mmc@e0101000 {
++   compatible = "arasan,sdhci-8.9a";
++   status = "disabled";
++   clock-names = "clk_xin", "clk_ahb";
++   clocks = <&clkc 22>, <&clkc 33>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 47 4>;
++   reg = <0xe0101000 0x1000>;
++  };
++
++  slcr: slcr@f8000000 {
++   u-boot,dm-pre-reloc;
++   #address-cells = <1>;
++   #size-cells = <1>;
++   compatible = "xlnx,zynq-slcr", "syscon", "simple-mfd";
++   reg = <0xF8000000 0x1000>;
++   ranges;
++   clkc: clkc@100 {
++    u-boot,dm-pre-reloc;
++    #clock-cells = <1>;
++    compatible = "xlnx,ps7-clkc";
++    fclk-enable = <0xf>;
++    clock-output-names = "armpll", "ddrpll", "iopll", "cpu_6or4x",
++      "cpu_3or2x", "cpu_2x", "cpu_1x", "ddr2x", "ddr3x",
++      "dci", "lqspi", "smc", "pcap", "gem0", "gem1",
++      "fclk0", "fclk1", "fclk2", "fclk3", "can0", "can1",
++      "sdio0", "sdio1", "uart0", "uart1", "spi0", "spi1",
++      "dma", "usb0_aper", "usb1_aper", "gem0_aper",
++      "gem1_aper", "sdio0_aper", "sdio1_aper",
++      "spi0_aper", "spi1_aper", "can0_aper", "can1_aper",
++      "i2c0_aper", "i2c1_aper", "uart0_aper", "uart1_aper",
++      "gpio_aper", "lqspi_aper", "smc_aper", "swdt",
++      "dbg_trc", "dbg_apb";
++    reg = <0x100 0x100>;
++   };
++
++   rstc: rstc@200 {
++    compatible = "xlnx,zynq-reset";
++    reg = <0x200 0x48>;
++    #reset-cells = <1>;
++    syscon = <&slcr>;
++   };
++
++   pinctrl0: pinctrl@700 {
++    compatible = "xlnx,pinctrl-zynq";
++    reg = <0x700 0x200>;
++    syscon = <&slcr>;
++   };
++  };
++
++  dmac_s: dmac@f8003000 {
++   compatible = "arm,pl330", "arm,primecell";
++   reg = <0xf8003000 0x1000>;
++   interrupt-parent = <&intc>;
++   interrupt-names = "abort", "dma0", "dma1", "dma2", "dma3",
++    "dma4", "dma5", "dma6", "dma7";
++   interrupts = <0 13 4>,
++                <0 14 4>, <0 15 4>,
++                <0 16 4>, <0 17 4>,
++                <0 40 4>, <0 41 4>,
++                <0 42 4>, <0 43 4>;
++   #dma-cells = <1>;
++   #dma-channels = <8>;
++   #dma-requests = <4>;
++   clocks = <&clkc 27>;
++   clock-names = "apb_pclk";
++  };
++
++  devcfg: devcfg@f8007000 {
++   compatible = "xlnx,zynq-devcfg-1.0";
++   interrupt-parent = <&intc>;
++   interrupts = <0 8 4>;
++   reg = <0xf8007000 0x100>;
++   clocks = <&clkc 12>, <&clkc 15>, <&clkc 16>, <&clkc 17>, <&clkc 18>;
++   clock-names = "ref_clk", "fclk0", "fclk1", "fclk2", "fclk3";
++   syscon = <&slcr>;
++  };
++
++  efuse: efuse@f800d000 {
++   compatible = "xlnx,zynq-efuse";
++   reg = <0xf800d000 0x20>;
++  };
++
++  global_timer: timer@f8f00200 {
++   compatible = "arm,cortex-a9-global-timer";
++   reg = <0xf8f00200 0x20>;
++   interrupts = <1 11 0x301>;
++   interrupt-parent = <&intc>;
++   clocks = <&clkc 4>;
++  };
++
++  ttc0: timer@f8001000 {
++   interrupt-parent = <&intc>;
++   interrupts = <0 10 4>, <0 11 4>, <0 12 4>;
++   compatible = "cdns,ttc";
++   clocks = <&clkc 6>;
++   reg = <0xF8001000 0x1000>;
++  };
++
++  ttc1: timer@f8002000 {
++   interrupt-parent = <&intc>;
++   interrupts = <0 37 4>, <0 38 4>, <0 39 4>;
++   compatible = "cdns,ttc";
++   clocks = <&clkc 6>;
++   reg = <0xF8002000 0x1000>;
++  };
++
++  scutimer: timer@f8f00600 {
++   interrupt-parent = <&intc>;
++   interrupts = <1 13 0x301>;
++   compatible = "arm,cortex-a9-twd-timer";
++   reg = <0xf8f00600 0x20>;
++   clocks = <&clkc 4>;
++  };
++
++  usb0: usb@e0002000 {
++   compatible = "xlnx,zynq-usb-2.20a", "chipidea,usb2";
++   status = "disabled";
++   clocks = <&clkc 28>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 21 4>;
++   reg = <0xe0002000 0x1000>;
++   phy_type = "ulpi";
++  };
++
++  usb1: usb@e0003000 {
++   compatible = "xlnx,zynq-usb-2.20a", "chipidea,usb2";
++   status = "disabled";
++   clocks = <&clkc 29>;
++   interrupt-parent = <&intc>;
++   interrupts = <0 44 4>;
++   reg = <0xe0003000 0x1000>;
++   phy_type = "ulpi";
++  };
++
++  watchdog0: watchdog@f8005000 {
++   clocks = <&clkc 45>;
++   compatible = "cdns,wdt-r1p2";
++   interrupt-parent = <&intc>;
++   interrupts = <0 9 1>;
++   reg = <0xf8005000 0x1000>;
++   timeout-sec = <10>;
++  };
++
++  etb@f8801000 {
++   compatible = "arm,coresight-etb10", "arm,primecell";
++   reg = <0xf8801000 0x1000>;
++   clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++   clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++   in-ports {
++    port {
++     etb_in_port: endpoint {
++      remote-endpoint = <&replicator_out_port1>;
++     };
++    };
++   };
++  };
++
++  tpiu@f8803000 {
++   compatible = "arm,coresight-tpiu", "arm,primecell";
++   reg = <0xf8803000 0x1000>;
++   clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++   clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++   in-ports {
++    port {
++     tpiu_in_port: endpoint {
++      remote-endpoint = <&replicator_out_port0>;
++     };
++    };
++   };
++  };
++
++  funnel@f8804000 {
++   compatible = "arm,coresight-static-funnel", "arm,primecell";
++   reg = <0xf8804000 0x1000>;
++   clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++   clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++
++
++   out-ports {
++    port {
++     funnel_out_port: endpoint {
++      remote-endpoint =
++       <&replicator_in_port0>;
++     };
++    };
++   };
++
++   in-ports {
++    #address-cells = <1>;
++    #size-cells = <0>;
++
++
++    port@0 {
++     reg = <0>;
++     funnel0_in_port0: endpoint {
++      remote-endpoint = <&ptm0_out_port>;
++     };
++    };
++
++    port@1 {
++     reg = <1>;
++     funnel0_in_port1: endpoint {
++      remote-endpoint = <&ptm1_out_port>;
++     };
++    };
++
++    port@2 {
++     reg = <2>;
++     funnel0_in_port2: endpoint {
++     };
++    };
++
++   };
++  };
++
++  ptm@f889c000 {
++   compatible = "arm,coresight-etm3x", "arm,primecell";
++   reg = <0xf889c000 0x1000>;
++   clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++   clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++   cpu = <&cpu0>;
++   out-ports {
++    port {
++     ptm0_out_port: endpoint {
++      remote-endpoint = <&funnel0_in_port0>;
++     };
++    };
++   };
++  };
++
++  ptm@f889d000 {
++   compatible = "arm,coresight-etm3x", "arm,primecell";
++   reg = <0xf889d000 0x1000>;
++   clocks = <&clkc 27>, <&clkc 46>, <&clkc 47>;
++   clock-names = "apb_pclk", "dbg_trc", "dbg_apb";
++   cpu = <&cpu1>;
++   out-ports {
++    port {
++     ptm1_out_port: endpoint {
++      remote-endpoint = <&funnel0_in_port1>;
++     };
++    };
++   };
++  };
++ };
+ };
++# 10 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts" 2
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/pl.dtsi" 1
+ 
+-&can0 {
+-	status = "okay";
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_can0_default>;
+-};
+ 
+-&clkc {
+-	ps-clk-frequency = <33333333>;
++
++
++
++
++
++/ {
++ amba_pl: amba_pl {
++  #address-cells = <1>;
++  #size-cells = <1>;
++  compatible = "simple-bus";
++  ranges ;
++  axi_ad9361_ctrl: axi_ad9361@43c00000 {
++   clock-names = "delay_clk", "clk", "s_axi_aclk";
++   clocks = <&clkc 16>, <&misc_clk_0>, <&clkc 15>;
++   compatible = "xlnx,axi-ad9361-1.0";
++   reg = <0x43c00000 0x10000>;
++  };
++  misc_clk_0: misc_clk_0 {
++   #clock-cells = <0>;
++   clock-frequency = <100000000>;
++   compatible = "fixed-clock";
+ };
++axidma_chrdev: axidma_chrdev@0{
++compatible = "xlnx,axidma-chrdev";
++dmas = <&axi_dma_msg 0 &axi_dma_msg 1>;
++dma-names = "tx_channel","rx_channel";
++  };
++  axi_dma_msg: dma@40400000 {
++   #dma-cells = <1>;
++   clock-names = "s_axi_lite_aclk", "m_axi_sg_aclk", "m_axi_mm2s_aclk", "m_axi_s2mm_aclk";
++   clocks = <&clkc 15>, <&clkc 15>, <&clkc 15>, <&clkc 15>;
++   compatible = "xlnx,axi-dma-7.1", "xlnx,axi-dma-1.00.a";
++   dma-coherent ;
++   interrupt-names = "mm2s_introut", "s2mm_introut";
++   interrupt-parent = <&intc>;
++   interrupts = <0 29 4 0 30 4>;
++   reg = <0x40400000 0x10000>;
++   xlnx,addrwidth = <0x20>;
++   xlnx,include-sg ;
++   xlnx,sg-length-width = <0xe>;
++   dma-channel@40400000 {
++    compatible = "xlnx,axi-dma-mm2s-channel";
++    dma-channels = <0x1>;
++    interrupts = <0 29 4>;
++    xlnx,datawidth = <0x20>;
++xlnx,device-id = <0x1>;
++   };
++   dma-channel@40400030 {
++    compatible = "xlnx,axi-dma-s2mm-channel";
++    dma-channels = <0x1>;
++    interrupts = <0 30 4>;
++    xlnx,datawidth = <0x20>;
++xlnx,device-id = <0x2>;
++   };
++  };
++ };
++};
++# 11 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts" 2
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/pcw.dtsi" 1
+ 
+-&gem0 {
+-	status = "okay";
+-	phy-mode = "rgmii-id";
+-	phy-handle = <&ethernet_phy>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_gem0_default>;
+-	phy-reset-gpio = <&gpio0 11 0>;
+-	phy-reset-active-low;
+-
+-	ethernet_phy: ethernet-phy@7 {
+-		reg = <7>;
+-	};
++
++
++
++
++
++
++/ {
++ cpus {
++  cpu@0 {
++   operating-points = <650000 1000000 325000 1000000>;
++  };
++ };
+ };
++&gem0 {
+ 
++ phy-mode = "rgmii-id";
++ status = "okay";
++ xlnx,ptp-enet-clock = <0x6750918>;
++};
+ &gpio0 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_gpio0_default>;
++ emio-gpio-width = <64>;
++ gpio-mask-high = <0x0>;
++ gpio-mask-low = <0x5600>;
+ };
+-
+ &i2c0 {
+-	status = "okay";
+-	clock-frequency = <400000>;
+-	pinctrl-names = "default", "gpio";
+-	pinctrl-0 = <&pinctrl_i2c0_default>;
+-	pinctrl-1 = <&pinctrl_i2c0_gpio>;
+-	scl-gpios = <&gpio0 50 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+-	sda-gpios = <&gpio0 51 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+-
+-	i2c-mux@74 {
+-		compatible = "nxp,pca9548";
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-		reg = <0x74>;
+-
+-		i2c@0 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <0>;
+-			si570: clock-generator@5d {
+-				#clock-cells = <0>;
+-				compatible = "silabs,si570";
+-				temperature-stability = <50>;
+-				reg = <0x5d>;
+-				factory-fout = <156250000>;
+-				clock-frequency = <148500000>;
+-			};
+-		};
+-
+-		i2c@1 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <1>;
+-			adv7511: hdmi-tx@39 {
+-				compatible = "adi,adv7511";
+-				reg = <0x39>;
+-				adi,input-depth = <8>;
+-				adi,input-colorspace = "yuv422";
+-				adi,input-clock = "1x";
+-				adi,input-style = <3>;
+-				adi,input-justification = "right";
+-			};
+-		};
+-
+-		i2c@2 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <2>;
+-			eeprom: eeprom@54 {
+-				compatible = "atmel,24c08";
+-				reg = <0x54>;
+-			};
+-		};
+-
+-		i2c@3 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <3>;
+-			gpio@21 {
+-				compatible = "ti,tca6416";
+-				reg = <0x21>;
+-				gpio-controller;
+-				#gpio-cells = <2>;
+-			};
+-		};
+-
+-		i2c@4 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <4>;
+-			rtc: rtc@51 {
+-				compatible = "nxp,pcf8563";
+-				reg = <0x51>;
+-			};
+-		};
+-
+-		i2c@7 {
+-			#address-cells = <1>;
+-			#size-cells = <0>;
+-			reg = <7>;
+-			hwmon@34 {
+-				compatible = "ti,ucd9248";
+-				reg = <0x34>;
+-			};
+-			hwmon@35 {
+-				compatible = "ti,ucd9248";
+-				reg = <0x35>;
+-			};
+-			hwmon@36 {
+-				compatible = "ti,ucd9248";
+-				reg = <0x36>;
+-			};
+-		};
+-	};
++ clock-frequency = <400000>;
++ status = "okay";
++};
++&i2c1 {
++ clock-frequency = <400000>;
++ status = "okay";
++};
++&intc {
++ num_cpus = <2>;
++ num_interrupts = <96>;
++};
++&qspi {
++ is-dual = <0>;
++ num-cs = <1>;
++ spi-rx-bus-width = <4>;
++ spi-tx-bus-width = <4>;
++ status = "okay";
++};
++&sdhci0 {
++ status = "okay";
++ xlnx,has-cd = <0x0>;
++ xlnx,has-power = <0x0>;
++ xlnx,has-wp = <0x0>;
++};
++&spi0 {
++ is-decoded-cs = <0>;
++ num-cs = <3>;
++ status = "okay";
++};
++&uart0 {
++ cts-override ;
++ device_type = "serial";
++ port-number = <0>;
++ status = "okay";
++};
++&usb0 {
++ phy_type = "ulpi";
++ status = "okay";
++ usb-reset = <&gpio0 47 0>;
++};
++&clkc {
++ fclk-enable = <0x3>;
++ ps-clk-frequency = <50000000>;
++};
++# 12 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts" 2
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/user.dtsi" 1
++/{
++ clocks{
++  ad9361_clkin: clock@0 {
++   compatible = "fixed-clock";
++   clock-frequency = <40000000>;
++   clock-output-names = "ad9361_ext_refclk";
++   #clock-cells = <0>;
++  };
++ };
+ };
+ 
+-&pinctrl0 {
+-	pinctrl_can0_default: can0-default {
+-		mux {
+-			function = "can0";
+-			groups = "can0_9_grp";
+-		};
+-
+-		conf {
+-			groups = "can0_9_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-
+-		conf-rx {
+-			pins = "MIO46";
+-			bias-high-impedance;
+-		};
+-
+-		conf-tx {
+-			pins = "MIO47";
+-			bias-disable;
+-		};
+-	};
+-
+-	pinctrl_gem0_default: gem0-default {
+-		mux {
+-			function = "ethernet0";
+-			groups = "ethernet0_0_grp";
+-		};
+-
+-		conf {
+-			groups = "ethernet0_0_grp";
+-			slew-rate = <0>;
+-			power-source = <4>;
+-		};
+-
+-		conf-rx {
+-			pins = "MIO22", "MIO23", "MIO24", "MIO25", "MIO26", "MIO27";
+-			bias-high-impedance;
+-			low-power-disable;
+-		};
+-
+-		conf-tx {
+-			pins = "MIO16", "MIO17", "MIO18", "MIO19", "MIO20", "MIO21";
+-			bias-disable;
+-			low-power-enable;
+-		};
+-
+-		mux-mdio {
+-			function = "mdio0";
+-			groups = "mdio0_0_grp";
+-		};
+-
+-		conf-mdio {
+-			groups = "mdio0_0_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-			bias-disable;
+-		};
+-	};
+-
+-	pinctrl_gpio0_default: gpio0-default {
+-		mux {
+-			function = "gpio0";
+-			groups = "gpio0_7_grp", "gpio0_8_grp", "gpio0_9_grp",
+-				 "gpio0_10_grp", "gpio0_11_grp", "gpio0_12_grp",
+-				 "gpio0_13_grp", "gpio0_14_grp";
+-		};
+-
+-		conf {
+-			groups = "gpio0_7_grp", "gpio0_8_grp", "gpio0_9_grp",
+-				 "gpio0_10_grp", "gpio0_11_grp", "gpio0_12_grp",
+-				 "gpio0_13_grp", "gpio0_14_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-
+-		conf-pull-up {
+-			pins = "MIO9", "MIO10", "MIO11", "MIO12", "MIO13", "MIO14";
+-			bias-pull-up;
+-		};
+-
+-		conf-pull-none {
+-			pins = "MIO7", "MIO8";
+-			bias-disable;
+-		};
+-	};
+-
+-	pinctrl_i2c0_default: i2c0-default {
+-		mux {
+-			groups = "i2c0_10_grp";
+-			function = "i2c0";
+-		};
+-
+-		conf {
+-			groups = "i2c0_10_grp";
+-			bias-pull-up;
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-	};
+-
+-	pinctrl_i2c0_gpio: i2c0-gpio-grp {
+-		mux {
+-			groups = "gpio0_50_grp", "gpio0_51_grp";
+-			function = "gpio0";
+-		};
+-
+-		conf {
+-			groups = "gpio0_50_grp", "gpio0_51_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-	};
+-
+-	pinctrl_sdhci0_default: sdhci0-default {
+-		mux {
+-			groups = "sdio0_2_grp";
+-			function = "sdio0";
+-		};
+-
+-		conf {
+-			groups = "sdio0_2_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-			bias-disable;
+-		};
+-
+-		mux-cd {
+-			groups = "gpio0_0_grp";
+-			function = "sdio0_cd";
+-		};
+-
+-		conf-cd {
+-			groups = "gpio0_0_grp";
+-			bias-high-impedance;
+-			bias-pull-up;
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-
+-		mux-wp {
+-			groups = "gpio0_15_grp";
+-			function = "sdio0_wp";
+-		};
+-
+-		conf-wp {
+-			groups = "gpio0_15_grp";
+-			bias-high-impedance;
+-			bias-pull-up;
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-	};
+-
+-	pinctrl_uart1_default: uart1-default {
+-		mux {
+-			groups = "uart1_10_grp";
+-			function = "uart1";
+-		};
+-
+-		conf {
+-			groups = "uart1_10_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-
+-		conf-rx {
+-			pins = "MIO49";
+-			bias-high-impedance;
+-		};
+-
+-		conf-tx {
+-			pins = "MIO48";
+-			bias-disable;
+-		};
+-	};
+-
+-	pinctrl_usb0_default: usb0-default {
+-		mux {
+-			groups = "usb0_0_grp";
+-			function = "usb0";
+-		};
+-
+-		conf {
+-			groups = "usb0_0_grp";
+-			slew-rate = <0>;
+-			power-source = <1>;
+-		};
+-
+-		conf-rx {
+-			pins = "MIO29", "MIO31", "MIO36";
+-			bias-high-impedance;
+-		};
+-
+-		conf-tx {
+-			pins = "MIO28", "MIO30", "MIO32", "MIO33", "MIO34",
+-			       "MIO35", "MIO37", "MIO38", "MIO39";
+-			bias-disable;
+-		};
+-	};
++
++&gem0{
++ local-mac-address = [00 0a 35 00 00 01];
++        phy-handle = <&ps_phy>;
++        ps_phy:ps_phy@1{
++                reg = <0x1>;
++                device_type = "ethernet_phy";
++         compatiable="realtek,RTL8211E";
++ };
+ };
+ 
+ &qspi {
+-	bootph-all;
+-	status = "okay";
+-	num-cs = <1>;
+-	flash@0 {
+-		compatible = "n25q128a11", "jedec,spi-nor";
+-		reg = <0x0>;
+-		spi-tx-bus-width = <1>;
+-		spi-rx-bus-width = <4>;
+-		spi-max-frequency = <50000000>;
+-		partitions {
+-			compatible = "fixed-partitions";
+-			#address-cells = <1>;
+-			#size-cells = <1>;
+-			partition@0 {
+-				label = "qspi-fsbl-uboot";
+-				reg = <0x0 0x100000>;
+-			};
+-			partition@100000 {
+-				label = "qspi-linux";
+-				reg = <0x100000 0x500000>;
+-			};
+-			partition@600000 {
+-				label = "qspi-device-tree";
+-				reg = <0x600000 0x20000>;
+-			};
+-			partition@620000 {
+-				label = "qspi-rootfs";
+-				reg = <0x620000 0x5e0000>;
+-			};
+-			partition@c00000 {
+-				label = "qspi-bitstream";
+-				reg = <0xc00000 0x400000>;
+-			};
+-		};
+-	};
++    compatible = "xlnx,zynq-qspi-1.0";
++    num-cs = <1>;
++    status = "okay";
++    
++    flash@0 {
++        compatible = "winbond,w25q256", "jedec,spi-nor";
++        reg = <0x0>;
++        #address-cells = <1>;
++        #size-cells = <1>;
++        spi-max-frequency = <10000000>;  // 降低到10MHz测试
++        spi-tx-bus-width = <1>;
++        spi-rx-bus-width = <1>;  // 先使用单线模式
++        status = "okay";
++    };
+ };
+ 
+-&sdhci0 {
+-	bootph-all;
+-	status = "okay";
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_sdhci0_default>;
++
++# 13 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts" 2
++# 1 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi" 1
++
++
++
++/ {
++ clocks {
++  ad9361_clkin: clock@0 {
++   compatible = "fixed-clock";
++
++   clock-frequency = <40000000>;
++   clock-output-names = "ad9361_ext_refclk";
++   #clock-cells = <0>;
++  };
++ };
+ };
+ 
+-&uart1 {
+-	bootph-all;
+-	status = "okay";
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_uart1_default>;
++&spi0 {
++ adc0_ad9361: ad9361-phy@0 {
++  compatible = "adi,ad9361";
++  reg = <0>;
++  en_agc-gpio = <&gpio0 98 0>;
++         sync-gpios = <&gpio0 99 0>;
++         reset-gpios = <&gpio0 100 0>;
++         enable-gpios = <&gpio0 101 0>;
++         txnrx-gpios = <&gpio0 102 0>;
++
++
++
++  spi-cpha;
++  spi-max-frequency = <10000000>;
++
++
++  clocks = <&ad9361_clkin 0>;
++  clock-names = "ad9361_ext_refclk";
++  clock-output-names = "rx_sampl_clk", "tx_sampl_clk";
++  #clock-cells = <1>;
++# 45 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi"
++  adi,digital-interface-tune-skip-mode = <0>;
++
++  adi,pp-tx-swap-enable;
++  adi,pp-rx-swap-enable;
++  adi,rx-frame-pulse-mode-enable;
++  adi,lvds-mode-enable;
++  adi,lvds-bias-mV = <150>;
++  adi,lvds-rx-onchip-termination-enable;
++  adi,rx-data-delay = <4>;
++  adi,tx-fb-clock-delay = <7>;
++
++
++
++  adi,dcxo-coarse-and-fine-tune = <8 5920>;
++
++
++
++
++  adi,2rx-2tx-mode-enable;
++
++
++
++  adi,frequency-division-duplex-mode-enable;
++# 85 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi"
++  adi,rx-rf-port-input-select = <0>;
++
++
++
++
++
++
++  adi,tx-rf-port-input-select = <0>;
++
++  adi,tx-attenuation-mdB = <10000>;
++  adi,tx-lo-powerdown-managed-enable;
++
++  adi,rf-rx-bandwidth-hz = <18000000>;
++  adi,rf-tx-bandwidth-hz = <18000000>;
++  adi,rx-synthesizer-frequency-hz = /bits/ 64 <2400000000>;
++  adi,tx-synthesizer-frequency-hz = /bits/ 64 <2450000000>;
++
++
++  adi,rx-path-clock-frequencies = <983040000 245760000 122880000 61440000 30720000 30720000>;
++
++  adi,tx-path-clock-frequencies = <983040000 122880000 122880000 61440000 30720000 30720000>;
++# 118 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi"
++  adi,gc-rx1-mode = <2>;
++  adi,gc-rx2-mode = <2>;
++  adi,gc-adc-ovr-sample-size = <4>;
++  adi,gc-adc-small-overload-thresh = <47>;
++  adi,gc-adc-large-overload-thresh = <58>;
++  adi,gc-lmt-overload-high-thresh = <800>;
++  adi,gc-lmt-overload-low-thresh = <704>;
++  adi,gc-dec-pow-measurement-duration = <8192>;
++  adi,gc-low-power-thresh = <24>;
++
++
++
++
++
++
++
++  adi,mgc-inc-gain-step = <2>;
++  adi,mgc-dec-gain-step = <2>;
++# 144 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi"
++  adi,mgc-split-table-ctrl-inp-gain-mode = <0>;
++
++
++
++  adi,agc-attack-delay-extra-margin-us= <1>;
++  adi,agc-outer-thresh-high = <5>;
++  adi,agc-outer-thresh-high-dec-steps = <2>;
++  adi,agc-inner-thresh-high = <10>;
++  adi,agc-inner-thresh-high-dec-steps = <1>;
++  adi,agc-inner-thresh-low = <12>;
++  adi,agc-inner-thresh-low-inc-steps = <1>;
++  adi,agc-outer-thresh-low = <18>;
++  adi,agc-outer-thresh-low-inc-steps = <2>;
++
++  adi,agc-adc-small-overload-exceed-counter = <10>;
++  adi,agc-adc-large-overload-exceed-counter = <10>;
++  adi,agc-adc-large-overload-inc-steps = <2>;
++
++  adi,agc-lmt-overload-large-exceed-counter = <10>;
++  adi,agc-lmt-overload-small-exceed-counter = <10>;
++  adi,agc-lmt-overload-large-inc-steps = <2>;
++
++
++
++
++  adi,agc-gain-update-interval-us = <1000>;
++
++
++
++
++
++  adi,fagc-dec-pow-measurement-duration = <64>;
++
++                adi,fagc-lp-thresh-increment-steps = <1>;
++                adi,fagc-lp-thresh-increment-time = <5>;
++
++                adi,fagc-energy-lost-stronger-sig-gain-lock-exit-cnt = <8>;
++                adi,fagc-final-overrange-count = <3>;
++
++                adi,fagc-gain-index-type-after-exit-rx-mode = <0>;
++                adi,fagc-lmt-final-settling-steps = <1>;
++                adi,fagc-lock-level = <10>;
++                adi,fagc-lock-level-gain-increase-upper-limit = <5>;
++                adi,fagc-lock-level-lmt-gain-increase-enable;
++
++                adi,fagc-lpf-final-settling-steps = <1>;
++                adi,fagc-optimized-gain-offset = <5>;
++                adi,fagc-power-measurement-duration-in-state5 = <64>;
++                adi,fagc-rst-gla-engergy-lost-goto-optim-gain-enable;
++                adi,fagc-rst-gla-engergy-lost-sig-thresh-below-ll = <10>;
++                adi,fagc-rst-gla-engergy-lost-sig-thresh-exceeded-enable;
++                adi,fagc-rst-gla-if-en-agc-pulled-high-mode = <0>;
++                adi,fagc-rst-gla-large-adc-overload-enable;
++                adi,fagc-rst-gla-large-lmt-overload-enable;
++                adi,fagc-rst-gla-stronger-sig-thresh-above-ll = <10>;
++                adi,fagc-rst-gla-stronger-sig-thresh-exceeded-enable;
++                adi,fagc-state-wait-time-ns = <260>;
++                adi,fagc-use-last-lock-level-for-set-gain-enable;
++# 213 "/mnt/e/document/SCFDE/closewifi/dts/build/fmcommos3.dtsi"
++  adi,rssi-restart-mode = <3>;
++
++  adi,rssi-delay = <1>;
++  adi,rssi-wait = <1>;
++  adi,rssi-duration = <1000>;
++
++
++  adi,ctrl-outs-index = <0>;
++  adi,ctrl-outs-enable-mask = <0xFF>;
++
++
++
++  adi,temp-sense-measurement-interval-ms = <1000>;
++  adi,temp-sense-offset-signed = <0xCE>;
++  adi,temp-sense-periodic-measurement-enable;
++
++
++
++  adi,aux-dac-manual-mode-enable;
++
++  adi,aux-dac1-default-value-mV = <0>;
++
++
++
++  adi,aux-dac1-rx-delay-us = <0>;
++  adi,aux-dac1-tx-delay-us = <0>;
++
++  adi,aux-dac2-default-value-mV = <0>;
++
++
++
++  adi,aux-dac2-rx-delay-us = <0>;
++  adi,aux-dac2-tx-delay-us = <0>;
++ };
+ };
+ 
+-&usb0 {
+-	status = "okay";
+-	dr_mode = "host";
+-	usb-phy = <&usb_phy0>;
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&pinctrl_usb0_default>;
++&i2c0 {
++ ad7291@68 {
++  compatible = "adi,ad7291";
++  reg = <0x68>;
++ };
++
++ eeprom@50 {
++  compatible = "at24,24c02";
++  reg = <0x50>;
++ };
++};
++# 14 "/mnt/e/document/SCFDE/closewifi/dts/build/system-top.dts" 2
++/ {
++ chosen {
++  bootargs = "earlycon";
++  stdout-path = "serial0:115200n8";
++ };
++ aliases {
++  ethernet0 = &gem0;
++  i2c0 = &i2c0;
++  i2c1 = &i2c1;
++  serial0 = &uart0;
++  spi0 = &qspi;
++  spi1 = &spi0;
++ };
++ memory {
++  device_type = "memory";
++  reg = <0x0 0x40000000>;
++ };
+ };
