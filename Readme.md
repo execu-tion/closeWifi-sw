@@ -22,6 +22,11 @@
 - 基于Xilinx官方的u-boot-xlnx仓库
 - 支持网络启动、SD卡启动、设备树等功能
 
+## 🐧 **tools/** - Linux硬件调试工具
+- **作用**：用于管理控制硬件状态的简单工具
+- Shell native support
+- 支持PHY、MAC管理控制
+
 ---
 
 **总结**：从硬件初始化(fsbl) → 引导加载(uboot) → 系统配置(dts)，配合自动化脚本(scripts)
