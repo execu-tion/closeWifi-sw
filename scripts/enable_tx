@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+devmem 0x43c04418 w 0 # disable channel 0
+devmem 0x43c04458 w 0 # disable channel 1
+devmem 0x43c04040 w 0 # disable DAC
+
+devmem 0x43c04040 w 1 # enable DAC
+devmem 0x43c04418 w 2 # enable channel 0
+devmem 0x43c04458 w 2 # enable channel 1
+

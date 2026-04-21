@@ -1,0 +1,57 @@
+/{
+	clocks{
+		ad9361_clkin: clock@0 {
+			compatible = "fixed-clock";
+			clock-frequency = <40000000>;
+			clock-output-names = "ad9361_ext_refclk";
+			#clock-cells = <0>;
+		};
+	};
+
+	data_acquisition:data_acquisition@43c20024{
+                        compatible = "none,data-acquisition";
+                        reg = <0x43c20024 0x4>;
+                        dmas = <&data_collect_dma 0x00>;
+                        dma-names = "rx";
+        };
+};
+
+
+&gem0{
+	local-mac-address = [00 0a 35 00 00 01];
+        phy-handle = <&ps_phy>;
+        ps_phy:ps_phy@1{
+                reg = <0x1>;
+                device_type = "ethernet_phy";
+        	compatiable="realtek,RTL8211E";
+	};
+};
+
+&qspi{
+	compatible = "xlnx,zynq-qspi-1.0";
+	num-cs = <2>;	
+	flash@0{
+		compatible = "micron,n25q256a13","jedec,spi-nor";
+		reg = <0x0>,<0x1>;
+		#address-cells = <0x1>;
+		#size-cells = <0x1>;
+		spi-max-frequency = <50000000>;
+		status = "okay";
+		parallel-memories = /bits/ 64 <0x10000000 0x10000000>;
+	};	
+};
+&data_collect_dma{
+	#dma-cells = <0x01>;
+	interrupts = <0 31 4>;
+	adi,channels {
+		#size-cells = <0>;
+		#address-cells = <1>;
+		dma-channel@0{
+			reg = <0>;
+			adi,source-bus-width=<32>;
+			adi,source-bus-type=<2>;
+			adi,destination-bus-width=<32>;
+			adi,destination-bus-type=<0>;
+		};
+	};
+};

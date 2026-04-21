@@ -1,0 +1,11 @@
+#!/usr/bin/bash
+
+devmem 0x43c00400 w 0 # disable channel 0
+devmem 0x43c00440 w 0 # disable channel 1
+devmem 0x43c00040 w 0 # disable ADC
+
+devmem 0x43c00040 w 1 # enable ADC
+devmem 0x43c00400 w 1 # enable channel 0
+devmem 0x43c00440 w 1 # enable channel 1
+
+echo "fast_attack" > /sys/bus/iio/devices/iio:device0/in_voltage0_gain_control_mode

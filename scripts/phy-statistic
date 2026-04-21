@@ -1,0 +1,59 @@
+#!/usr/bin/bash
+
+PHY_BASE_REG=0x43c20000
+VERSION_REG=$(($PHY_BASE_REG+0x00))
+RESET_REG=$(($PHY_BASE_REG+0x4))
+MIN_PLATEAU_REG=$(($PHY_BASE_REG+0x8))
+FINE_THRESH_REG=$(($PHY_BASE_REG+0xC))
+SYNC_SHORT_REG=$(($PHY_BASE_REG+0x10))
+SYNC_LONG_REG=$(($PHY_BASE_REG+0x14))
+SYNC_FAIL_REG=$(($PHY_BASE_REG+0x18))
+CRC_FAIL_REG=$(($PHY_BASE_REG+0x1C))
+CRC_OK_REG=$(($PHY_BASE_REG+0x20))
+DATA_COLLECT_REG=$(($PHY_BASE_REG+0x24))
+TEST_EN_REG=$(($PHY_BASE_REG+0x30))
+TEST_MCS_REG=$(($PHY_BASE_REG+0x34))
+TEST_LEN_REG=$(($PHY_BASE_REG+0x38))
+TEST_NUM_REG=$(($PHY_BASE_REG+0x3C))
+PHY_TX_REG=$(($PHY_BASE_REG+0x40))
+PHY_RX_REG=$(($PHY_BASE_REG+0x44))
+PHY_BUF_OVF=$(($PHY_BASE_REG+0x48))
+
+getS(){
+	echo -e "\t\033[32m$1:\t$(printf "%d" $(devmem $2))\t(mapped: $(printf "0x%X" $2))\033[0m"
+}
+getV(){
+	BASE_DIR=/sys/bus/iio/devices/iio:device0/
+	echo -e "\t\033[32m$1:\t$(cat $BASE_DIR/$2)\t[[ $2\033[0m"
+}
+blink(){
+	echo -e "\t\033[31m======================================================\033[0m"
+}
+echo -e "\t\033[1;32mVESRION   :\t"$(printf "%x" $(devmem $VERSION_REG))"\033[0m"
+blink
+echo -e "\t\033[32mLOOP_BACK :\t"$(loop_back | awk '{print $4}')"\033[0m"
+getS "DISABLE   " $RESET_REG
+blink
+getV "TX LO     " "out_altvoltage1_TX_LO_frequency"
+getV "RX LO     " "out_altvoltage0_RX_LO_frequency"
+getV "AGC       " "in_voltage1_gain_control_mode"
+blink
+getS "MinPLATEAU" $MIN_PLATEAU_REG
+getS "FineTHRESH" $FINE_THRESH_REG
+blink
+getS "SYNC_SHORT" $SYNC_SHORT_REG
+getS "SYNC_LONG " $SYNC_LONG_REG
+getS "SYNC_FAIL " $SYNC_FAIL_REG
+getS "CRC_FAIL  " $CRC_FAIL_REG
+getS "CRC_OK    " $CRC_OK_REG
+getS "DATA_COLLT" $DATA_COLLECT_REG
+blink
+getS "Test en   " $TEST_EN_REG
+getS "Test Mcs  " $TEST_MCS_REG
+getS "Test Len  " $TEST_LEN_REG
+getS "Test Num  " $TEST_NUM_REG
+blink
+getS "PHY TX    " $PHY_TX_REG
+getS "PHY RX    " $PHY_RX_REG
+getS "PHY OVF   " $PHY_BUF_OVF
+blink
