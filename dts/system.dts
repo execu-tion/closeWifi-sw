@@ -1,7 +1,7 @@
-# 0 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts"
+# 0 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts"
 # 0 "<built-in>"
 # 0 "<command-line>"
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts"
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts"
 
 
 
@@ -10,8 +10,8 @@
 
 
 /dts-v1/;
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/zynq-7000.dtsi" 1
-# 15 "/mnt/e/document/SCFDE/fix/dts/build/zynq-7000.dtsi"
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/zynq-7000.dtsi" 1
+# 15 "/mnt/e/document/SCFDE/repo/sw/dts/build/zynq-7000.dtsi"
 / {
  #address-cells = <1>;
  #size-cells = <1>;
@@ -565,8 +565,8 @@
   };
  };
 };
-# 10 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts" 2
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/pl.dtsi" 1
+# 10 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts" 2
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/pl.dtsi" 1
 
 
 
@@ -634,8 +634,8 @@ xlnx,device-id = <0x2>;
   };
  };
 };
-# 11 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts" 2
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/pcw.dtsi" 1
+# 11 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts" 2
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/pcw.dtsi" 1
 
 
 
@@ -646,7 +646,7 @@ xlnx,device-id = <0x2>;
 / {
  cpus {
   cpu@0 {
-   operating-points = <650000 1000000 325000 1000000>;
+   operating-points = <675000 1000000 337500 1000000>;
   };
  };
 };
@@ -654,7 +654,7 @@ xlnx,device-id = <0x2>;
 
  phy-mode = "rgmii-id";
  status = "okay";
- xlnx,ptp-enet-clock = <0x6750918>;
+ xlnx,ptp-enet-clock = <0x6b49d20>;
 };
 &gpio0 {
  emio-gpio-width = <64>;
@@ -702,8 +702,8 @@ xlnx,device-id = <0x2>;
  fclk-enable = <0x3>;
  ps-clk-frequency = <50000000>;
 };
-# 12 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts" 2
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/user.dtsi" 1
+# 12 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts" 2
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/user.dtsi" 1
 /{
  clocks{
   ad9361_clkin: clock@0 {
@@ -720,6 +720,13 @@ xlnx,device-id = <0x2>;
                         dmas = <&data_collect_dma 0x00>;
                         dma-names = "rx";
         };
+ usb_phy0: phy0 {
+         compatible = "ulpi-phy";
+         #phy-cells = <0>;
+         reg = <0xe0002000 0x1000>;
+         view-port = <0x170>;
+         drv-vbus;
+    };
 };
 
 
@@ -761,8 +768,13 @@ xlnx,device-id = <0x2>;
   };
  };
 };
-# 13 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts" 2
-# 1 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi" 1
+
+&usb0{
+ dr_mode="peripheral";
+ usb-phy = <&usb_phy0>;
+};
+# 13 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts" 2
+# 1 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi" 1
 
 
 
@@ -798,7 +810,7 @@ xlnx,device-id = <0x2>;
   clock-names = "ad9361_ext_refclk";
   clock-output-names = "rx_sampl_clk", "tx_sampl_clk";
   #clock-cells = <1>;
-# 45 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi"
+# 45 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi"
   adi,digital-interface-tune-skip-mode = <0>;
   adi,pp-tx-swap-enable;
   adi,pp-rx-swap-enable;
@@ -818,7 +830,7 @@ xlnx,device-id = <0x2>;
 
 
   adi,frequency-division-duplex-mode-enable;
-# 81 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi"
+# 81 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi"
   adi,rx-rf-port-input-select = <0>;
 
 
@@ -841,7 +853,7 @@ xlnx,device-id = <0x2>;
 
 
   adi,tx-path-clock-frequencies = <1280000000 320000000 160000000 80000000 40000000 40000000>;
-# 116 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi"
+# 116 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi"
   adi,gc-rx1-mode = <1>;
   adi,gc-rx2-mode = <1>;
   adi,gc-adc-ovr-sample-size = <4>;
@@ -860,7 +872,7 @@ xlnx,device-id = <0x2>;
 
   adi,mgc-inc-gain-step = <2>;
   adi,mgc-dec-gain-step = <2>;
-# 142 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi"
+# 142 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi"
   adi,mgc-split-table-ctrl-inp-gain-mode = <0>;
 
 
@@ -919,7 +931,7 @@ xlnx,device-id = <0x2>;
                 adi,fagc-rst-gla-stronger-sig-thresh-exceeded-enable;
                 adi,fagc-state-wait-time-ns = <260>;
                 adi,fagc-use-last-lock-level-for-set-gain-enable;
-# 211 "/mnt/e/document/SCFDE/fix/dts/build/fmcommos3.dtsi"
+# 211 "/mnt/e/document/SCFDE/repo/sw/dts/build/fmcommos3.dtsi"
   adi,rssi-restart-mode = <3>;
 
   adi,rssi-delay = <1>;
@@ -968,7 +980,7 @@ xlnx,device-id = <0x2>;
   reg = <0x50>;
  };
 };
-# 14 "/mnt/e/document/SCFDE/fix/dts/build/system-top.dts" 2
+# 14 "/mnt/e/document/SCFDE/repo/sw/dts/build/system-top.dts" 2
 / {
  chosen {
   bootargs = "earlycon";

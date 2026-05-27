@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+
 source log.sh
 LOG_I $0 "executing!"
 EXEC_DIR=$PWD

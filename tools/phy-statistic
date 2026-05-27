@@ -24,7 +24,7 @@ getS(){
 }
 getV(){
 	BASE_DIR=/sys/bus/iio/devices/iio:device0/
-	echo -e "\t\033[32m$1:\t$(cat $BASE_DIR/$2)\t[[ $2\033[0m"
+	echo -e "\t\033[32m$1:\t$(printf "%10s" $(cat $BASE_DIR/$2))\t[[ $2\033[0m"
 }
 blink(){
 	echo -e "\t\033[31m======================================================\033[0m"
@@ -37,6 +37,7 @@ blink
 getV "TX LO     " "out_altvoltage1_TX_LO_frequency"
 getV "RX LO     " "out_altvoltage0_RX_LO_frequency"
 getV "AGC       " "in_voltage1_gain_control_mode"
+getV "ENSM Mode " "ensm_mode"
 blink
 getS "MinPLATEAU" $MIN_PLATEAU_REG
 getS "FineTHRESH" $FINE_THRESH_REG
