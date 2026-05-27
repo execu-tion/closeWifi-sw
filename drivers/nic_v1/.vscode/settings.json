@@ -1,0 +1,16 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "kernel.h": "c",
+        "netdevice.h": "c",
+        "module.h": "c",
+        "list.h": "c",
+        "interrupt.h": "c",
+        "version.h": "c",
+        "axidma.h": "c",
+        "dma-mapping.h": "c",
+        "if_ether.h": "c",
+        "if_arp.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "disabled"
+}

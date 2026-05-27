@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "/home/xcution/adilinux/linux-adi/include/",
+                "/home/xcution/adilinux/linux-adi/arch/arm/include/**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [],
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++98",
+            "intelliSenseMode": "linux-gcc-arm",
+            "compilerPath": "/tools/Xilinx/Vitis/2021.1/gnu/aarch32/lin/gcc-arm-linux-gnueabi/bin/arm-linux-gnueabihf-gcc",
+            "compileCommands": [
+                "/home/xcution/adilinux/linux-adi/scripts/clang-tools/compile_commands.json"
+            ]
+        }
+    ],
+    "version": 4
+}

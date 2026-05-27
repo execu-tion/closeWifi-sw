@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/home/xcution/adilinux/linux-adi/include/",
+                "/home/xcution/adilinux/linux-adi/arch/arm/include/",
+                "/home/xcution/adilinux/linux-adi/arch/arm/include/uapi"
+            ],
+            "defines": [],
+            "compilerPath": "/tools/Xilinx/Vitis/2021.1/gnu/aarch64/lin/aarch64-linux/bin/aarch64-linux-gnu-gcc",
+            "cStandard": "gnu23",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-arm"
+        }
+    ],
+    "version": 4
+}

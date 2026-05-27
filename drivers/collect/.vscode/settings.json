@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "*.py": "python",
+        "consumer.h": "c",
+        "module.h": "c",
+        "bits.h": "c",
+        "build_bug.h": "c",
+        "compiler.h": "c"
+    }
+}
