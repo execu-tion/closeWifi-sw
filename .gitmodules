@@ -5,3 +5,4 @@
 [submodule "uboot"]
 	path = uboot
 	url = https://github.com/Xilinx/u-boot-xlnx.git
+	branch = xlnx_rel_v2021.1_update1
